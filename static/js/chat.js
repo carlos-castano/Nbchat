@@ -662,7 +662,8 @@ function handleKeyExpandChat(event) {
         event.key === 'ArrowLeft' && 
         !isChatExpanded &&
         chatContainer.classList.contains('visible') &&
-        (document.activeElement !== chatInput || chatInput.value.length === 0)
+        (document.activeElement !== chatInput || chatInput.value.length === 0) &&
+        !document.querySelector('.cell-content').matches(':focus')
     ) {
         toggleExpand();
     } else if (
@@ -670,7 +671,8 @@ function handleKeyExpandChat(event) {
         event.key === 'ArrowRight' && 
         isChatExpanded &&
         chatContainer.classList.contains('visible') &&
-        (document.activeElement !== chatInput || chatInput.value.length === 0)
+        (document.activeElement !== chatInput || chatInput.value.length === 0) &&
+        !document.querySelector('.cell-content').matches(':focus')
     ) {
         toggleExpand();
     }
