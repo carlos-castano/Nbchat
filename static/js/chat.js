@@ -663,7 +663,8 @@ function handleKeyExpandChat(event) {
         !isChatExpanded &&
         chatContainer.classList.contains('visible') &&
         (document.activeElement !== chatInput || chatInput.value.length === 0) &&
-        !document.querySelector('.cell-content').matches(':focus')
+        !document.querySelector('.cell-content').matches(':focus') &&
+        !document.querySelector('.edit-textarea').matches(':focus')
     ) {
         toggleExpand();
     } else if (
@@ -672,7 +673,8 @@ function handleKeyExpandChat(event) {
         isChatExpanded &&
         chatContainer.classList.contains('visible') &&
         (document.activeElement !== chatInput || chatInput.value.length === 0) &&
-        !document.querySelector('.cell-content').matches(':focus')
+        !document.querySelector('.cell-content').matches(':focus') &&
+        !document.querySelector('.edit-textarea').matches(':focus')
     ) {
         toggleExpand();
     }
