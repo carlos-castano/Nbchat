@@ -181,7 +181,8 @@ function loadSession(file) {
         window.chatFunctions.showChat();
 
         const chatMessages = document.getElementById('chat-messages');
-        chatMessages.scrollTop = chatMessages.scrollHeight
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        MathJax.typeset([chatMessages]);
     };
     reader.readAsText(file);
     hideMenu();
