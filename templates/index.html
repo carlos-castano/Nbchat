@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook AI</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="stylesheet" href="static/css/tokyo-night-dark.css">
+    <script src="static/js/marked.min.js"></script>
+    <script src="static/js/highlight.min.js"></script>
+    <script src="static/js/cells.js"></script>
+    <script src="static/js/chat.js"></script>
+    <script src="static/js/menu.js"></script>
+    <script type="text/javascript" id="MathJax-script" async
+     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+     <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          }
+        };
+        </script>
+</head>
+<body>
+    <header>
+        <div id="general-buttons"></div>
+    </header>
+    
+    <div id="notebook-container">
+        <main id="notebook"></main>
+        <div id="button-container">
+            <button id="add-markdown-cell" type="button">+ Markdown</button>
+            <button id="add-code-cell" type="button">+ Code</button>
+        </div>
+        <div id="notification" class="notification"></div>
+    </div>
+    <div id="menu-button">
+        <div id="menu-icon">☰</div>
+    </div>
+    <div id="menu" class="hidden">
+    </div>
+    <div id="chat-container" class="hidden">
+        <div id="chat-resizer"></div>
+        <div id="chat-tabs"></div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-container">
+            <textarea id="chat-input" placeholder="Type your message..."></textarea>
+        </div>
+    </div>
+    <div id="chat-button">
+        <div id="chat-icon">💬</div>
+    </div>
+    <div id="switch-model-button">
+        <div id="switch-model-icon">🧠</div>
+        <div id="model-container">
+            <div id="model-options">
+                <div class="model-option" data-model="gpt-4o-mini">GPT-4o Mini</div>
+                <div class="model-option" data-model="gpt-4o">GPT-4o</div>
+                <div class="model-option" data-model="o1-mini">o1 Mini</div>
+                <div class="model-option" data-model="o1-preview">o1 Preview</div>
+            </div>
+            <div id="temperature-control">
+                <img id="temperature-icon" src="/static/svg/thermometer-temperature-svgrepo-com.svg" alt="Temperature">
+                <input type="text" id="temperature-value" value="0.3" readonly>
+                <span id="temperature-max">/ 2.0</span>
+                <div id="temperature-buttons">
+                    <button class="temp-button" id="temp-increase">+</button>
+                    <button class="temp-button" id="temp-decrease">-</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="expand-collapse-container">
+        <button id="expand-collapse-button" type="button" style="display: none;">
+            <img src="static/svg/left-arrow-circle-svgrepo-com.svg" alt="Expand/Collapse">
+    </div>
+</body>
+</html>
