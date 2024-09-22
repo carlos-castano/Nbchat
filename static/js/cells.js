@@ -19,7 +19,11 @@ function saveState() {
 }
 
 function undo() {
-    if (undoStack.length > 1) {
+    if (undoStack.length > 1 &&
+        !document.querySelector('.cell-content')?.matches(':focus') &&
+        !document.querySelector('.edit-textarea')?.matches(':focus') &&
+        document.activeElement !== chatInput
+    ) {
         isUndoingOrRedoing = true;
         redoStack.push(undoStack.pop());
         applyState(undoStack[undoStack.length - 1]);
@@ -28,7 +32,11 @@ function undo() {
 }
 
 function redo() {
-    if (redoStack.length > 0) {
+    if (redoStack.length > 0 &&
+        !document.querySelector('.cell-content')?.matches(':focus') &&
+        !document.querySelector('.edit-textarea')?.matches(':focus') &&
+        document.activeElement !== chatInput
+    ) {
         isUndoingOrRedoing = true;
         const nextState = redoStack.pop();
         undoStack.push(nextState);
