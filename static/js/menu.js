@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadButton.textContent = 'Load session 📖 🗪';
         loadButton.classList.add('menu-button');
         loadButton.onclick = () => {
+            alert('All unsaved changes will be lost. Use Menu -> Save session to save cells and chats or Menu -> Save as .ipynb to save only cells.');
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = '.nbchat';
@@ -118,6 +119,7 @@ function hideMenu() {
 
 // Loads the .ipynb file and processes it (cell outputs are excluded)
 function selectIpynbFile() {
+    alert('All unsaved changes will be lost. Use Menu -> Save session to save cells and chats or Menu -> Save as .ipynb to save only cells.');
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.ipynb';
