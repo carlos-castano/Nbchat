@@ -51,6 +51,6 @@ Please note that this project is current as of September 22, 2024 (with the o1 m
 
 ## Developer's Note
 
-This was my summer project for 2024, just before starting my third year of Applied Data Science. It’s my first project involving HTML, JS, CSS, and Flask—all of which were new to me. Although it is not a professional product, it is good enough for me to use it personally over other tools, as it allows the use of powerful models without limitations of use and at virtually no cost (if you use the 4o series). I hope you find it useful as well.
+This was my summer project for 2024, just before starting my third year of Applied Data Science. It’s my first project involving JS, CSS, and Flask—all of which were new to me. Although it is not a professional product, it is good enough for me to use it personally over other tools, as it allows the use of powerful models without limitations of use and at virtually no cost (if you use the 4o series). I hope you find it useful as well.
 
 Enjoy!
