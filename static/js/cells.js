@@ -1,10 +1,14 @@
 let activeCell = null;
-let undoStack = [];
-let redoStack = [];
+let cellsUndoStack = [];
+let cellsRedoStack = [];
+let chatUndoStack = [];
+let chatRedoStack = [];
 let isUndoingOrRedoing = false;
 
-// Next 4 functions are for the undo/redo functionality
-function saveState() {
+// This first 7 functions are used to undo and redo cells and chat-input content
+// Main difference is that cells-undo-redo recover any cell state (add, remove, process, content)
+// and chat-undo-redo only recover the content while chat-input is focused, this is set in listeners (end of file)
+function saveCellsState() {
     if (isUndoingOrRedoing) return;
     
     const cells = document.querySelectorAll('.cell-container');
@@ -14,38 +18,61 @@ function saveState() {
         isProcessed: cell.querySelector('.markdown-output, .code-output').style.display === 'block'
     }));
     
-    undoStack.push(state);
-    redoStack = [];
+    cellsUndoStack.push(state);
+    cellsRedoStack = [];
 }
 
-function undo() {
-    if (undoStack.length > 1 &&
-        !document.querySelector('.cell-content')?.matches(':focus') &&
-        !document.querySelector('.edit-textarea')?.matches(':focus') &&
-        document.activeElement !== chatInput
-    ) {
+function saveChatState() {
+    if (isUndoingOrRedoing) return;
+    
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        chatUndoStack.push(chatInput.value);
+        chatRedoStack = [];
+    }
+}
+
+function undoCells() {
+    if (cellsUndoStack.length > 1) {
         isUndoingOrRedoing = true;
-        redoStack.push(undoStack.pop());
-        applyState(undoStack[undoStack.length - 1]);
+        cellsRedoStack.push(cellsUndoStack.pop());
+        applyCellsState(cellsUndoStack[cellsUndoStack.length - 1]);
         isUndoingOrRedoing = false;
     }
 }
 
-function redo() {
-    if (redoStack.length > 0 &&
-        !document.querySelector('.cell-content')?.matches(':focus') &&
-        !document.querySelector('.edit-textarea')?.matches(':focus') &&
-        document.activeElement !== chatInput
-    ) {
+function redoCells() {
+    if (cellsRedoStack.length > 0) {
         isUndoingOrRedoing = true;
-        const nextState = redoStack.pop();
-        undoStack.push(nextState);
-        applyState(nextState);
+        const nextState = cellsRedoStack.pop();
+        cellsUndoStack.push(nextState);
+        applyCellsState(nextState);
         isUndoingOrRedoing = false;
     }
 }
 
-function applyState(state) {
+function undoChat() {
+    if (chatUndoStack.length > 1) {
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatRedoStack.push(chatUndoStack.pop());
+            chatInput.value = chatUndoStack[chatUndoStack.length - 1];
+        }
+    }
+}
+
+function redoChat() {
+    if (chatRedoStack.length > 0) {
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            const nextState = chatRedoStack.pop();
+            chatUndoStack.push(nextState);
+            chatInput.value = nextState;
+        }
+    }
+}
+
+function applyCellsState(state) {
     const notebook = document.querySelector('#notebook');
     notebook.innerHTML = '';
     state.forEach(cellState => {
@@ -81,7 +108,7 @@ function applyState(state) {
     showAddCellButtons();
 }
 
-// This functions uses marked.min.js to process markdown
+// marked.min.js to process markdown
 function processMarkdownCell(cell) {
     // get the content of the textarea
     const textarea = cell.querySelector('.cell-content');
@@ -102,11 +129,11 @@ function processMarkdownCell(cell) {
     });
 
     if (!isUndoingOrRedoing) {
-        saveState();
+        saveCellsState();
     }
 }
 
-// This function uses highlight.js to process code (same logic)
+// This one uses highlight.js to process code (same logic)
 function processCodeCell(cell) {
     const textarea = cell.querySelector('.cell-content');
     const output = cell.querySelector('.code-output');
@@ -135,11 +162,11 @@ function processCodeCell(cell) {
         textarea.focus();
     });
     if (!isUndoingOrRedoing) {
-        saveState();
+        saveCellsState();
     }
 }
 
-// This function it's used to process the hole notebook when loaded via selectIpynbFile(), function found in menu.js
+// processNotebookData it's used to process the hole notebook when loaded via selectIpynbFile(), function found in menu.js
 function processNotebookData(notebookData) {
     notebookData.cells.forEach(cell => {
         if (cell.cell_type === 'markdown') {
@@ -152,7 +179,6 @@ function processNotebookData(notebookData) {
     });
 }
 
-
 function updateCellNumbers() {
     const cells = document.querySelectorAll('.cell-container');
     cells.forEach((cell, index) => {
@@ -163,7 +189,7 @@ function updateCellNumbers() {
     });
 }
 
-// This could be avoided writting in html, next functions are for the global buttons (select all, run all, etc)
+// This could be avoided writting in html, next functions are for global buttons (select all, run all, etc)
 function addGlobalCellButtons() {
     const selectAllButton = document.createElement('div');
     selectAllButton.id = 'select-all-btn';
@@ -219,7 +245,7 @@ function addGlobalCellButtons() {
 }
 
 // The logics follows: if more cells selected are red, change to green, else to red and viceversa
-// Green means that general chat can see this cell and red means that it can't
+// Green means that "general" chat can see this cell and red means that it can't
 function changeSelectedContextVision(){
     const selectedCells = document.querySelectorAll('.cell-container .cell-select-checkbox:checked');
     let redCells = 0;
@@ -265,7 +291,7 @@ function runAllSelectedCells() {
 
 }
 
-// Copy the text of every selected cell as plain text (if markdown cotains "# 1" it's copied as "# 1")
+// Copy text of every selected cell as plain text (if markdown cotains "# 1" return -> "# 1")
 function copySelectedCellsText() {
     const selectedCells = document.querySelectorAll('.cell-container .cell-select-checkbox:checked');
     let textToCopy = '';
@@ -313,11 +339,11 @@ function deleteSelectedCells() {
     updateCellNumbers();
     showAddCellButtons();
     if (!isUndoingOrRedoing) {
-        saveState();
+        saveCellsState();
     }
 }
 
-// This function is used to update the select all button title
+// Update the select all button title
 function updateSelectAllButtonState() {
     const selectAllButton = document.querySelector('#select-all-btn');
     if (!selectAllButton) return;
@@ -335,7 +361,7 @@ function updateSelectAllButtonState() {
     }
 }
 
-// Next 2 functions goal is to select all or deselect all cells
+// Next 2 functions goal is to select or deselect all cells
 function toggleSelectAll() {
     const cells = document.querySelectorAll('.cell-container .cell-select-checkbox');
     const allSelected = Array.from(cells).every(checkbox => checkbox.checked);
@@ -394,7 +420,7 @@ function addCell(type, content = '') {
     updateCellNumbers();
 
     if (!isUndoingOrRedoing) {
-        saveState();
+        saveCellsState();
     }
     return cellContainer.querySelector('.cell');
 }
@@ -425,7 +451,7 @@ function insertCell(type, refCellContainer) {
     updateSelectAllButtonState();
 
     if (!isUndoingOrRedoing) {
-        saveState();
+        saveCellsState();
     }
 }
 
@@ -527,7 +553,7 @@ function createCellContent(type, content = '') {
     });
 
     const executeButton = cell.querySelector('.execute-button');
-    executeButton.title = 'Execute';
+    executeButton.title = 'Run';
     const deleteButton = cell.querySelector('.delete-button');
     deleteButton.title = 'Delete';
     const copyButton = cell.querySelector('.copy-button');
@@ -548,7 +574,7 @@ function createCellContent(type, content = '') {
             activeCell = null;
         }
         if (!isUndoingOrRedoing) {
-            saveState();
+            saveCellsState();
         }
     });
 
@@ -682,12 +708,21 @@ document.addEventListener('keydown', (event) => {
         }
     } else if (event.ctrlKey && event.key === 'z') {
         event.preventDefault();
-        undo();
+        if (document.activeElement === document.getElementById('chat-input')) {
+            undoChat();
+        } else {
+            undoCells();
+        }
     } else if (event.ctrlKey && event.key === 'y') {
         event.preventDefault();
-        redo();
+        if (document.activeElement === document.getElementById('chat-input')) {
+            redoChat();
+        } else {
+            redoCells();
+        }
     }
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     addMarkdownCellButton = document.querySelector('#add-markdown-cell');
@@ -699,8 +734,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('input', (event) => {
         if (event.target.classList.contains('cell-content')) {
             if (!isUndoingOrRedoing) {
-                saveState();
+                saveCellsState();
             }
+        } else if (event.target.id === 'chat-input') {
+            saveChatState();
         }
     });
     const deleteButton = document.querySelector('#delete-btn');
@@ -712,8 +749,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (runAllButton) {
         runAllButton.addEventListener('click', runAllSelectedCells);
     }
+    saveCellsState();
+    saveChatState();
 
-    // this is used to animate the general buttons "collapse" (dont touch them and watch a basic animation)
+    // this is used to animate the general buttons "collapse"
     function startCollapseTimer(time = 4000) {
         timer = setTimeout(() => {
             if (!mouseOver) {
@@ -748,5 +787,4 @@ document.addEventListener('DOMContentLoaded', () => {
             event.target.setAttribute('target', '_blank');
         }
     });
-    saveState();
 });
