@@ -127,6 +127,11 @@ function selectIpynbFile() {
         const file = event.target.files[0];
         if (file && file.name.endsWith('.ipynb')) {
             window.chatFunctions.collapseChat();
+            window.chatFunctions.updateChatTabs();
+            window.chatFunctions.switchToTab(activeChatTab);
+            window.chatFunctions.updateChatInput();
+            window.chatFunctions.updateLayout();
+            window.chatFunctions.showChat();
             window.chatFunctions.hideChat();
             window.chatFunctions.showChat();
             document.querySelector('#chat-messages').innerHTML = '';
@@ -172,7 +177,6 @@ function loadSession(file) {
         activeChatTab = sessionData.activeChatTab || 'general';
 
         window.chatFunctions.updateChatTabs();
-        
         window.chatFunctions.switchToTab(activeChatTab);
         window.chatFunctions.updateChatInput();
         window.chatFunctions.updateLayout();
