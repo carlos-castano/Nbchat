@@ -49,6 +49,15 @@ let temperature = 0.3;
 
 Please note that this project is current as of September 22, 2024 (with the o1 models unavailable), so features like displaying reasoning chains from o1 models are not included.
 
+## Acknowledgements
+
+This project utilizes open-source tools that enhance its functionality:
+
+- [MathJax](https://www.mathjax.org/): for rendering beautiful mathematical expressions.
+- [highlight.js](https://highlightjs.org/): for syntax highlighting in code blocks.
+
+A special thanks to the developers of these tools for their invaluable contributions!
+
 ## Developer's Note
 
 This was my summer project for 2024, just before starting my third year of Applied Data Science. It’s my first project involving JS, CSS, and Flask—all of which were new to me. Although it is not a professional product, it is good enough for me to use it personally over other tools, as it allows the use of powerful models without limitations of use and at virtually no cost (if you use the 4o series). I hope you find it useful as well.
