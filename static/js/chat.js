@@ -346,6 +346,8 @@ function handleResize() {
                 expandChat();
             } else {
                 collapseChat();
+                hideChat();
+                showChat();
             }
         }
 
@@ -439,6 +441,8 @@ function showChat() {
         // As chat is shown, expand-button should be visible
         expandCollapseContainer.style.display = 'block';
         expandCollapseContainer.style.right = `${adjustedWidth + 10}px`;
+        stopButton.style.left = '';
+        stopButton.style.right = `${adjustedWidth + 10}px`;
         updateExpandCollapseButton();
         // If users get the chat expanded when used hideChat, then if this function is call, show it expanded
         if (chatContainer.offsetWidth > (window.innerWidth - scrollbarWidth) * 0.9) {
@@ -465,6 +469,9 @@ function hideChat() {
         switchModelButton.style.left = 'auto';
         modelContainer.style.right = buttonPosition;
         modelContainer.style.left = 'auto';
+        
+        stopButton.style.left = '';
+        stopButton.style.right = '-5%';
 
         expandCollapseContainer.style.display = 'none';
 
@@ -515,6 +522,10 @@ function resizeChat(e) {
             switchModelButton.style.right = `${newChatWidth + 10}px`;
             modelContainer.style.right = `${newChatWidth + 10}px`;
             expandCollapseContainer.style.right = `${newChatWidth + 10}px`;
+            // Because stopButton is set fixed, if set right is nedded, remove left or won't work
+            stopButton.style.left = '';
+            stopButton.style.right = `${newChatWidth + 10}px`;
+            stopButton.style.top = `${expandCollapseContainer.getBoundingClientRect().top - 40}px`;
             updateLayout();
         });
     }
@@ -644,6 +655,7 @@ function adjustExpandCollapseButtonPosition() {
 
     if (stopButton.style.display !== 'none') {
         const rect = expandCollapseContainer.getBoundingClientRect();
+        stopButton.style.right = '';
         stopButton.style.left = `${rect.left}px`;
         stopButton.style.top = `${rect.top - 40}px`;
     }
@@ -818,11 +830,19 @@ function updateChatInput() {
     }
 
     chatInput.addEventListener('input', adjustChatInputHeight);
-    // Send message when users press Enter
+    // Send message when users press Enter and use tab as indentation
     chatInput.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey) {
             event.preventDefault();
             sendMessage();
+        }
+
+        if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey) {
+            event.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
         }
     });
     chatInputContainer.appendChild(chatInput);
@@ -876,7 +896,7 @@ function createMessageElement(message) {
     return messageElement;
 }
 
-// When a message is added, it's a must do it at last position
+// When adding a message, it must necessarily be in the last position
 function updateMessageInChat(messageId, newContent) {
     const messageIndex = chatTabs[activeChatTab].messages.findIndex(m => m.id === messageId);
     if (messageIndex !== -1) {
@@ -941,8 +961,16 @@ function editMessage(messageId) {
         textarea.style.height = 'fit-content';
         textarea.style.height = `${textarea.scrollHeight}px`;
     }
-
     textarea.addEventListener('input', adjustEditInputHeight);
+    textarea.addEventListener('keydown', function(event) {
+        if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey) {
+            event.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
+        }
+    });
     
     contentElement.querySelector('.cancel-edit').onclick = () => {
         contentElement.innerHTML = originalContent;
@@ -974,7 +1002,7 @@ function editMessage(messageId) {
 function addMessage(type, content) {
     // creates an id for each message
     const messageId = Date.now();
-    // and adds it to the chatTabs object
+    // append to chatTabs
     chatTabs[activeChatTab].messages.push({type, content, id: messageId});
     
     const chatMessages = document.getElementById('chat-messages');
@@ -1115,7 +1143,7 @@ function unescapeHtml(text) {
 // sendMessage uses current messages to get conversational context
 // As that messages are processed in real time, we may need to save the original in a variable and processed messages in other one (or html),
 // wasting space as conversation grows
-// in order to avoid this, we use this function to reverse every message to its original content, if we don't use it, api will return
+// in order to avoid this, we use this function to revert each message back to its original content, if we don't, api will return
 // strange messages following lasts messages sintaxis (like: <p>, "Copy Button", etc)
 function convertHtmlToMarkdown(htmlText) {
     let text = htmlText;
@@ -1243,7 +1271,7 @@ function processContent(text) {
         lastIndex = codeBlockRegex.lastIndex;
     }
 
-    // if there is still content, process it
+    // if there is still content, repeat the process
     if (lastIndex < text.length) {
         let remainingText = text.slice(lastIndex);
         
@@ -1294,7 +1322,7 @@ function sendMessage(overrideMessage = null, isRetry = false) {
         // as said earlier, we will get general context or cell context (ai-button) 
         const activeTab = chatTabs[activeChatTab];
         const context = activeChatTab === 'general' ? getGeneralContext() : activeTab.context;
-        // and process content to avoid strange sintaxis
+        // process content to avoid strange sintaxis (convertHtmlToMarkdown)
         const chatHistory = activeTab.messages.map(m => ({
             role: m.type === 'user' ? 'user' : 'assistant',
             content: convertHtmlToMarkdown(m.content)
@@ -1405,11 +1433,8 @@ function updateStopButton(show) {
     if (show) {
         const expandCollapseContainer = document.getElementById('expand-collapse-container');
         const rect = expandCollapseContainer.getBoundingClientRect();
-        stopButton.style.position = 'fixed';
-        stopButton.style.left = `${rect.left}px`;
         stopButton.style.top = `${rect.top - 40}px`;
         stopButton.style.display = 'block';
-        stopButton.style.zIndex = '1000';
     } else {
         stopButton.style.display = 'none';
     }
