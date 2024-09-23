@@ -1178,7 +1178,7 @@ function convertHtmlToMarkdown(htmlText) {
         }).trim() + '\n';
     });
 
-    // Paso 7: Numbered lists with counter (ol y li)
+    // Step 7: Numbered lists with counter (ol y li)
     let counter = 1;
     text = text.replace(/<ol>([\s\S]*?)<\/ol>/g, (match, content) => {
         counter = 1;
@@ -1186,6 +1186,15 @@ function convertHtmlToMarkdown(htmlText) {
             return `${counter++}. ${listItemContent.trim()}\n`;
         }).trim() + '\n';
     });
+
+    // Step 8: update headers
+    text = text.replace(/<h([1-6])[^>]*>(.*?)<\/h[1-6]>/g, (match, level, content) => {
+        return `${"#".repeat(level)} ${content.trim()}`;
+    });
+
+    // Step 9: update bold and italic
+    text = text.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
+    text = text.replace(/<(i|em)>(.*?)<\/\1>/g, '*$2*');
 
     // Resting steps: deletes multiple line formulas: \[, \(, $, $$
     text = text.replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (match, content) => {
