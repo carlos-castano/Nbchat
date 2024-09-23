@@ -55,6 +55,7 @@ This project utilizes open-source tools that enhance its functionality:
 
 - [MathJax](https://www.mathjax.org/): for rendering beautiful mathematical expressions.
 - [highlight.js](https://highlightjs.org/): for syntax highlighting in code blocks.
+- [Marked.js](https://marked.js.org/): for parsing and compiling markdown.
 
 A special thanks to the developers of these tools for their invaluable contributions!
 
