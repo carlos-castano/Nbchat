@@ -33,7 +33,7 @@ On the right, there's the "brain" button to configure the model and temperature 
 
 ### Chats and AI Context:
 
-- There is a general chat where the AI will use all cells marked in green as its context. If you'd prefer to exclude certain cells, simply click on the green area to toggle its status. This can be done at any point in the conversation, and the structure will update with each new user message.
+- There is a general chat where the AI will use all cells marked in green as its context. If you prefer to exclude certain cells, simply click on the green area to toggle its status. This can be done at any point in the conversation, and the structure will update with each new user message.
 - You can also open a chat tied to individual cells by clicking the chat button beneath each one. In this case, the AI will only have access to that specific cell's content, regardless of whether it’s marked in red or green.
 
 The central buttons in the notebook are designed to perform actions on all selected cells.
@@ -47,7 +47,7 @@ let currentModel = "gpt-4o-mini";
 let temperature = 0.3;
 ```
 
-Please note that this project is current as of September 22, 2024 (with the o1 models unavailable), so features like displaying reasoning chains from o1 models are not included.
+Please note that this project has been published on September 22, 2024 (o1 models unavailable), so features like displaying reasoning chains from o1 models are not included.
 
 ## Acknowledgements
 
